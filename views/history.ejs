@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar span {
+            margin-right: 10px;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-link {
+            margin-right: 10px;
+            color: white;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar-link:hover {
+            background-color: #555;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <span></span>
+        <div class="navbar-links">
+            <a href="/home" class="navbar-link home-link">Home</a>
+            <a href="/login" class="navbar-link logout-link">Logout</a>
+        </div>
+    </div>
+
+    <h1>User Search History</h1>
+
+    <ul>
+        <% userHistory.forEach(historyItem => { %>
+            <li><%= historyItem.action %> - <%= historyItem.date %></li>
+        <% }); %>
+    </ul>
+    <footer style="margin-top: 300px;">
+        <p style="margin: 0;">Created by Balzhan, SE-2206</p>
+    </footer>
+    
+</body>
+
+</html>

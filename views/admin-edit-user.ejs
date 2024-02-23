@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+
+
+    <h1>Edit User</h1>
+
+    <form action="/admin-panel/update-user/<%= user._id %>" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="<%= user.name %>" required>
+        <button type="submit">Update User</button>
+    </form>
+</body>
+</html>
