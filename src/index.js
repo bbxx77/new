@@ -8,7 +8,6 @@ const app = express();
 const port = 3000;
 const bcrypt = require('bcrypt');
 
-
 app.use(session({ secret: "your-secret-key", resave: true, saveUninitialized: true }));
 app.use(express.static(__dirname + '../public'));
 app.set('view engine', 'ejs');
@@ -19,6 +18,8 @@ app.use(express.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
 app.use('/api', express.static(path.join(__dirname, 'api')));
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/uploads', express.static('public/uploads'));
 
 let existingHtml = "";
 
@@ -26,8 +27,8 @@ app.get("/", (req, res) => {
     res.render("login");
 });
 
-app.get("/api/weather", (req, res) => {
-    res.render("../api/weather", { existingHtml: existingHtml });
+app.get("/api/books_by_title", (req, res) => {
+    res.render("../api/books_by_title", { existingHtml: existingHtml });
 });
 
 app.get("/api/urban-dictionary", (req, res) => {
@@ -101,36 +102,40 @@ app.post("/login", async (req, res) => {
 });
 
 
-app.post("/search", async (req, res) => {
-    const city = req.body.city;
-    const apiKey = '394f7ad19bb5c5525c4ddb18324358d7';
+app.post("/api/books_by_title", async (req, res) => {
+    const { title } = req.body;
+
+    const options = {
+        method: 'GET',
+        url: 'https://book-finder1.p.rapidapi.com/api/search',
+        params: {
+            results_per_page: '25',
+            page: '1',
+            title: title,
+        },
+        headers: {
+            'X-RapidAPI-Key': 'b7a46591c7msh9fd0404fd28ff29p1a4c3ejsn4be6a293c2f2',
+            'X-RapidAPI-Host': 'book-finder1.p.rapidapi.com'
+        }
+    };
 
     try {
-        const response = await axios.get(
-            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=394f7ad19bb5c5525c4ddb18324358d7`
-        );
+        const response = await axios.request(options);
+        const booksData = response.data;
 
-        const weatherData = response.data;
-        const temperature = weatherData.main.temp;
-        const feelsLike = weatherData.main.feels_like;
-        const weatherIcon = weatherData.weather[0].icon;
+        console.log("Books Data:", booksData); 
 
-        const additionalContent = { city: city, temperature: temperature, feelsLike: feelsLike, weatherIcon: weatherIcon };
-        const userName = req.session.userName;
+        res.render('../api/books_by_title', { books: booksData });
 
-        await collection.UserActionModel.create({
-            username: userName,
-            action: `Search weather for ${city}`,
-            date: new Date(),
-        });
-
-        existingHtml = additionalContent;
-        res.redirect('/api/weather');
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error fetching weather data");
+        res.status(500).send("Error fetching book data");
     }
 });
+
+
+
+
 
 const fetchMeanings = async (word) => {
     try {
@@ -285,27 +290,20 @@ app.post('/admin-panel/update-user/:userId', async (req, res) => {
     const newPassword = req.body.password;
 
     try {
-        // Find the user by ID
         const user = await collection.UserModel.findById(userId);
 
         if (!user) {
             return res.status(404).send('User not found.');
         }
-
-        // Update the user's information
         user.name = updatedUsername;
-
-        // Save the updated user to the database
         await user.save();
 
-        res.redirect('/admin-panel'); // Redirect back to the admin panel after updating
+        res.redirect('/admin-panel'); 
     } catch (error) {
         console.error('Error updating user:', error);
         res.status(500).send('An error occurred while updating the user.');
     }
 });
-
-
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
