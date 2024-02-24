@@ -8,6 +8,7 @@ const app = express();
 const port = 3000;
 const bcrypt = require('bcrypt');
 
+
 app.use(session({ secret: "your-secret-key", resave: true, saveUninitialized: true }));
 app.use(express.static(__dirname + '../public'));
 app.set('view engine', 'ejs');
@@ -26,7 +27,9 @@ let existingHtml = "";
 app.get("/", (req, res) => {
     res.render("login");
 });
-
+app.get("/api/books_by_title", (req, res) => {
+    res.render("../api/books_by_title", { existingHtml: existingHtml });
+});
 app.get("/api/books_by_title", (req, res) => {
     res.render("../api/books_by_title", { existingHtml: existingHtml });
 });
@@ -100,53 +103,6 @@ app.post("/login", async (req, res) => {
         res.status(500).send('An error occurred during login.');
     }
 });
-
-
-app.post("/api/books_by_title", async (req, res) => {
-    const { title } = req.body;
-
-    const options = {
-        method: 'GET',
-        url: 'https://book-finder1.p.rapidapi.com/api/search',
-        params: {
-            results_per_page: '25',
-            page: '1',
-            title: title,
-        },
-        headers: {
-            'X-RapidAPI-Key': 'b7a46591c7msh9fd0404fd28ff29p1a4c3ejsn4be6a293c2f2',
-            'X-RapidAPI-Host': 'book-finder1.p.rapidapi.com'
-        }
-    };
-
-    try {
-        const response = await axios.request(options);
-        const booksData = response.data;
-
-        console.log("Books Data:", booksData); 
-
-        res.render('../api/books_by_title', { books: booksData });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Error fetching book data");
-    }
-});
-
-
-
-
-
-const fetchMeanings = async (word) => {
-    try {
-        const response = await axios.get(`https://api.urbandictionary.com/v0/define?term=${word}`);
-        return response.data.list;
-    } catch (error) {
-        console.error("Error fetching Urban Dictionary data:", error);
-        throw error;
-    }
-};
-
 app.get("/api/urban-dictionary", async (req, res) => {
     try {
         const meanings = await fetchMeanings();
@@ -175,37 +131,6 @@ app.post("/api/search-word", async (req, res) => {
         res.status(500).json({ error: "Error fetching Urban Dictionary data" });
     }
 });
-
-app.post("/api/movies", async (req, res) => {
-    const movieTitle = req.body.movieTitle;
-
-    try {
-        const response = await axios.get(
-            `https://moviesdatabase.p.rapidapi.com/titles/search/title/${movieTitle}`,
-            {
-                headers: {
-                    'X-RapidAPI-Key': 'b7a46591c7msh9fd0404fd28ff29p1a4c3ejsn4be6a293c2f2',
-                    'X-RapidAPI-Host': 'moviesdatabase.p.rapidapi.com'
-                }
-            }
-        );
-
-        const userName = req.session.userName; 
-
-        await collection.UserActionModel.create({
-            username: userName,
-            action: `Search word on Movies: ${movieTitle}`,
-            date: new Date(),
-        });
-
-        const movieData = response.data;
-        res.render("../api/movies", { movies: movieData });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Error fetching movie data" });
-    }
-});
-
 
 app.get("/history", async (req, res) => {
     try {
@@ -304,6 +229,32 @@ app.post('/admin-panel/update-user/:userId', async (req, res) => {
         res.status(500).send('An error occurred while updating the user.');
     }
 });
+app.post("/search", async (req, res) => {
+    const title = req.body.title;
+    const apiUrl = `http://openlibrary.org/search.json?title=${title}`;
+
+    try {
+        const response = await axios.get(apiUrl);
+        const booksData = response.data.docs;
+
+        const additionalContent = { title: title, books: booksData };
+        const userName = req.session.userName;
+
+        await collection.UserActionModel.create({
+            username: userName,
+            action: `Search books for ${title}`,
+            date: new Date(),
+        });
+
+        res.render('../api/books_by_title', { existingHtml: additionalContent });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error fetching book data");
+    }
+});
+
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });

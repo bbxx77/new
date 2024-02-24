@@ -1,12 +1,9 @@
 <!-- books_by_title.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookstore</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -84,7 +81,6 @@
             border: none;
             border-radius: 5px;
             transition: background-color 0.3s;
-            margin-bottom: 10px; /* Add margin bottom to create space between buttons */
         }
 
         button:hover {
@@ -111,42 +107,73 @@
             text-align: center;
             width: 100%;
         }
-    </style>
-</head>
+        .books-container {
+            margin-top: 20px;
+        }
 
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            border-bottom: 1px solid #ccc;
+            padding: 20px 0;
+            text-align: left;
+        }
+    </style>
+    <title>Open Library Search</title>
+</head>
 <body>
     <div class="navbar">
-        <span>Welcome User!</span>
+        <span>Open Library Search</span>
         <div class="navbar-links">
-            <a href="/login" class="navbar-link logout-link">Logout</a>
+            <a href="/home" class="navbar-link home-link">Home</a>
+            <a href="/logout" class="navbar-link logout-link">Logout</a>
             <a href="/history" class="navbar-link logout-link">View Search History</a>
         </div>
     </div>
 
-    <div class="container" style="width: 80%; max-width: 800px; margin: 20px auto; padding: 30px; box-sizing: border-box;">
-        <h1 style="color: #333; margin-bottom: 20px;">Explore Books by Title</h1>
-        <form method="post" action="/api/books_by_title">
-            <label for="bookTitle">Enter Book Title:</label>
-            <input type="text" id="bookTitle" name="bookTitle" required>
+    <div class="container">
+        <h1>Open Library Search</h1>
+        <form action="/search" method="post">
+            <label for="title">Enter Book Title:</label>
+            <input type="text" id="title" name="title" required>
             <button type="submit">Search</button>
         </form>
-        
-        <% if (books && books.length > 0) { %>
-            <div>
-                <% books.forEach(book => { %>
-                    <h2><%= book.title %></h2>
-                    <!-- Add other book details as needed -->
-                <% }); %>
+
+        <% if(existingHtml) { %>
+            <div class="books-container">
+                <h2>Books for <%= existingHtml.title %></h2>
+                <% if(existingHtml.books && existingHtml.books.length > 0) { %>
+                    <ul>
+                        <% existingHtml.books.forEach(book => { %>
+                            <li>
+                                <h3><%= book.title %></h3>
+                                <% if(book.author_name) { %>
+                                    <p>Author: <%= book.author_name.join(', ') %></p>
+                                <% } %>
+                                <% if(book.first_publish_year) { %>
+                                    <p>First Publish Year: <%= book.first_publish_year %></p>
+                                <% } %>
+                                <% if(book.publish_year) { %>
+                                    <p>Publish Year(s): <%= book.publish_year.join(', ') %></p>
+                                <% } %>
+                                <% if(book.ratings_average) { %>
+                                    <p>Average Rating out of 5.00: <%= book.ratings_average.toFixed(2) %></p>
+                                <% } %>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } else { %>
+                    <p>No books found.</p>
+                <% } %>
             </div>
-        <% } else if (books && books.length === 0) { %>
-            <p>No books found for the given title.</p>
-        <% } else { %>
-            <p>Error: Books variable is not defined.</p>
         <% } %>
     </div>
 
-    <footer style="margin-top: auto; padding: 15px; background-color: #333; color: white; text-align: center; width: 100%;">
-        <p style="margin: 0;">Created by Balzhan, SE-2206</p>
+    <footer>
+        <p>Created by Balzhan, SE-2206</p>
     </footer>
 </body>
 </html>

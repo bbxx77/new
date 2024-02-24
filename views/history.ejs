@@ -79,7 +79,14 @@
 
     <ul>
         <% userHistory.forEach(historyItem => { %>
-            <li><%= historyItem.action %> - <%= historyItem.date %></li>
+            <li>
+                <%= historyItem.action %> - <%= historyItem.date %><br>
+                <% if (historyItem.resultsShown) { %>
+                    Results shown: <a href="/search/results/<%= historyItem.query %>"><%= historyItem.resultsShown %></a>
+                <% } else { %>
+                    No results shown
+                <% } %>
+            </li>
         <% }); %>
     </ul>
     <footer style="margin-top: 300px;">
@@ -87,5 +94,4 @@
     </footer>
     
 </body>
-
 </html>
