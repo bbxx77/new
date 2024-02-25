@@ -129,7 +129,7 @@
         <span>Open Library Search</span>
         <div class="navbar-links">
             <a href="/home" class="navbar-link home-link">Home</a>
-            <a href="/logout" class="navbar-link logout-link">Logout</a>
+            <a href="/login" class="navbar-link logout-link">Logout</a>
             <a href="/history" class="navbar-link logout-link">View Search History</a>
         </div>
     </div>
@@ -141,37 +141,33 @@
             <input type="text" id="title" name="title" required>
             <button type="submit">Search</button>
         </form>
-
+       
+       
+       
+       
+       
         <% if(existingHtml) { %>
             <div class="books-container">
                 <h2>Books for <%= existingHtml.title %></h2>
-                <% if(existingHtml.books && existingHtml.books.length > 0) { %>
-                    <ul>
-                        <% existingHtml.books.forEach(book => { %>
-                            <li>
-                                <h3><%= book.title %></h3>
-                                <% if(book.author_name) { %>
-                                    <p>Author: <%= book.author_name.join(', ') %></p>
-                                <% } %>
-                                <% if(book.first_publish_year) { %>
-                                    <p>First Publish Year: <%= book.first_publish_year %></p>
-                                <% } %>
-                                <% if(book.publish_year) { %>
-                                    <p>Publish Year(s): <%= book.publish_year.join(', ') %></p>
-                                <% } %>
-                                <% if(book.ratings_average) { %>
-                                    <p>Average Rating out of 5.00: <%= book.ratings_average.toFixed(2) %></p>
-                                <% } %>
-                            </li>
-                        <% }); %>
-                    </ul>
-                <% } else { %>
-                    <p>No books found.</p>
+                <% if(existingHtml.author) { %>
+                    <p>Author: <%= existingHtml.author %></p>
+                <% } %>
+                <% if(existingHtml.firstPublishYear) { %>
+                    <p>First Publish Year: <%= existingHtml.firstPublishYear %></p>
+                <% } %>
+                <% if(existingHtml.publishYears && existingHtml.publishYears.length > 0) { %>
+                    <p>Publish Year(s): <%= existingHtml.publishYears.join(', ') %></p>
                 <% } %>
             </div>
         <% } %>
-    </div>
 
+    </div>
+    
+    
+    
+    
+    
+    
     <footer>
         <p>Created by Balzhan, SE-2206</p>
     </footer>

@@ -42,16 +42,22 @@ const UserModel = mongoose.model('users', loginSchema);
 const userActionSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true
+    required: true,
   },
   action: {
     type: String,
-    required: true
+    required: true,
   },
   date: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
+  result: {
+    title: String,
+    author: String,
+    firstPublishYear: String,
+    publishYears: [String],
+  },
 });
 
 const UserActionModel = mongoose.model('users_action', userActionSchema);

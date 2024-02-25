@@ -8,7 +8,10 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f8f8f8;
+            background-image: url('https://i.pinimg.com/originals/67/18/22/671822c2f63dd5f65d8fd15c9710420b.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
             margin: 0;
             padding: 0;
             display: flex;
@@ -115,8 +118,11 @@
     <div class="navbar">
         <span>Welcome User!</span>
         <div class="navbar-links">
-            <a href="/login" class="navbar-link logout-link">Logout</a>
+            <a href="api/books_by_title" class="navbar-link logout-link">Books by title</a>
+            <a href="api/books_by_title" class="navbar-link logout-link">Books by ISBN</a>
+            <a href="api/books_by_title" class="navbar-link logout-link">QUIZ(bonus)</a>
             <a href="/history" class="navbar-link logout-link">View Search History</a>
+            <a href="/login" class="navbar-link logout-link">Logout</a>
         </div>
     </div>
     <div class="container">
@@ -127,9 +133,6 @@
             </form>
             <form method="get" action="/api/books_by_isbn">
                 <button>Discover Books by ISBN</button>
-            </form>
-            <form method="get" action="/api/genres">
-                <button>Statics and Charts for books</button>
             </form>
         </div>
     </div>

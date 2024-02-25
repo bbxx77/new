@@ -229,6 +229,9 @@ app.post('/admin-panel/update-user/:userId', async (req, res) => {
         res.status(500).send('An error occurred while updating the user.');
     }
 });
+
+
+
 app.post("/search", async (req, res) => {
     const title = req.body.title;
     const apiUrl = `http://openlibrary.org/search.json?title=${title}`;
@@ -237,13 +240,23 @@ app.post("/search", async (req, res) => {
         const response = await axios.get(apiUrl);
         const booksData = response.data.docs;
 
-        const additionalContent = { title: title, books: booksData };
+        // Extract necessary information
+        const bookInfo = booksData[0];
+        const additionalContent = {
+            title: bookInfo.title,
+            author: bookInfo.author_name ? bookInfo.author_name.join(', ') : '',
+            firstPublishYear: bookInfo.first_publish_year || '',
+            publishYears: bookInfo.publish_year || [],
+        };
+
         const userName = req.session.userName;
 
-        await collection.UserActionModel.create({
+        // Save the result in user action
+        const userAction = await collection.UserActionModel.create({
             username: userName,
             action: `Search books for ${title}`,
             date: new Date(),
+            result: additionalContent,
         });
 
         res.render('../api/books_by_title', { existingHtml: additionalContent });
@@ -253,30 +266,48 @@ app.post("/search", async (req, res) => {
         res.status(500).send("Error fetching book data");
     }
 });
-app.post("/search-isbn", async (req, res) => {
-    const isbn = req.body.isbn;
-    const apiUrl = `https://openlibrary.org/api/volumes/brief/isbn/${isbn}.json`;
+
+
+
+
+app.post("/search", async (req, res) => {
+    const title = req.body.title;
+    const apiUrl = `http://openlibrary.org/search.json?title=${title}`;
 
     try {
         const response = await axios.get(apiUrl);
-        const bookData = response.data.docs;
+        const booksData = response.data.docs;
 
-        const additionalContent = { isbn: isbn, bookInfo: bookData[0] }; // Use bookData[0] to get the first book info
+        // Extract necessary information
+        const bookInfo = booksData[0];
+        const additionalContent = {
+            title: bookInfo.title,
+            author: bookInfo.author_name ? bookInfo.author_name.join(', ') : '',
+            firstPublishYear: bookInfo.first_publish_year || '',
+            publishYears: bookInfo.publish_year || [],
+            ratings_average: getNestedValue(bookInfo, 'details', 'ratings_average') || 0,
+        };
+
         const userName = req.session.userName;
 
-        await collection.UserActionModel.create({
+        // Save the result in user action
+        const userAction = await collection.UserActionModel.create({
             username: userName,
-            action: `Search book by ISBN ${isbn}`,
+            action: `Search books for ${title}`,
             date: new Date(),
+            result: additionalContent,
         });
 
-        res.render('../api/books_by_isbn', { existingHtml: additionalContent });
+        res.render('../api/books_by_title', { existingHtml: additionalContent });
 
     } catch (error) {
         console.error(error);
-        res.render('../api/books_by_isbn', { existingHtml: { error: 'No information available for the provided ISBN.' } });
+        res.status(500).send("Error fetching book data");
     }
 });
+
+
+
 
 
 

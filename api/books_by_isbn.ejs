@@ -98,6 +98,7 @@
     <div class="navbar">
         <span>Welcome User!</span>
         <div class="navbar-links">
+            <a href="/home" class="navbar-link logout-link">Home</a>
             <a href="/login" class="navbar-link logout-link">Logout</a>
             <a href="/history" class="navbar-link logout-link">View Search History</a>
         </div>
@@ -110,38 +111,33 @@
             <input type="text" id="isbn" name="isbn" required>
             <button type="submit">Search</button>
         </form>
-
-        <% if(existingHtml) { %>
-            <% if(existingHtml.bookInfo) { %>
-                <div class="books-container">
-                    <h2><%= existingHtml.bookInfo.details.title %></h2>
-                    <p>Author: <%= existingHtml.bookInfo.details.authors[0]?.name %></p>
-                    <p>Publish Date: <%= existingHtml.bookInfo.details.publish_date %></p>
-                    <!-- Add more details as needed -->
-    
-                    <!-- You can also display the cover image -->
-                    <img src="<%= existingHtml.bookInfo.cover?.medium %>" alt="Book Cover">
-    
-                    <!-- Add additional information as needed -->
-    
-                    <!-- Display links to external sources -->
-                    <% if (existingHtml.bookInfo.details.links && existingHtml.bookInfo.details.links.length > 0) { %>
-                        <ul>
-                            <% existingHtml.bookInfo.details.links.forEach(link => { %>
-                                <li><a href="<%= link.url %>" target="_blank"><%= link.title %></a></li>
-                            <% }) %>
-                        </ul>
-                    <% } %>
-                </div>
-            <% } else if(existingHtml.error) { %>
-                <p>Error: <%= existingHtml.error %></p>
-            <% } else { %>
-                <p>No information available for the provided ISBN.</p>
+                <% if(existingHtml) { %>
+    <div class="books-container">
+        <% if(existingHtml.bookInfo) { %>
+            <% const book = existingHtml.bookInfo; %>
+            <h2><%= book.details.title %></h2>
+            <% if (book.details.authors && book.details.authors.length > 0) { %>
+                <p>Author: <%= book.details.authors[0].name %></p>
             <% } %>
+            <% if (book.details.publish_date) { %>
+                <p>Publish Date: <%= book.details.publish_date %></p>
+            <% } %>
+            <!-- Add more details as needed -->
+
+            <!-- Display links to external sources -->
+            <% if (book.details.links && book.details.links.length > 0) { %>
+                <ul>
+                    <% book.details.links.forEach(link => { %>
+                        <li><a href="<%= link.url %>" target="_blank"><%= link.title %></a></li>
+                    <% }) %>
+                </ul>
+            <% } %>
+        <% } else if(existingHtml.error) { %>
+            <p>Error: <%= existingHtml.error %></p>
         <% } else { %>
-            <p>Loading...</p>
+            <p>No information available for the provided ISBN.</p>
         <% } %>
     </div>
-</body>
-
-</html>
+<% } else { %>
+    <p>Loading...</p>
+<% } %>
