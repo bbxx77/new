@@ -1,0 +1,147 @@
+<!-- books_by_isbn.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Information</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar span {
+            margin-left: 50px;
+        }
+
+        .navbar-link {
+            margin-right: 10px;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar-link:hover {
+            background-color: #333;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .books-container {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            border-bottom: 1px solid #ccc;
+            padding: 20px 0;
+            text-align: left;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <span>Welcome User!</span>
+        <div class="navbar-links">
+            <a href="/login" class="navbar-link logout-link">Logout</a>
+            <a href="/history" class="navbar-link logout-link">View Search History</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Book ISBN</h1>
+        <form action="/search-isbn" method="post">
+            <label for="isbn">Enter ISBN:</label>
+            <input type="text" id="isbn" name="isbn" required>
+            <button type="submit">Search</button>
+        </form>
+
+        <% if(existingHtml) { %>
+            <% if(existingHtml.bookInfo) { %>
+                <div class="books-container">
+                    <h2><%= existingHtml.bookInfo.details.title %></h2>
+                    <p>Author: <%= existingHtml.bookInfo.details.authors[0]?.name %></p>
+                    <p>Publish Date: <%= existingHtml.bookInfo.details.publish_date %></p>
+                    <!-- Add more details as needed -->
+    
+                    <!-- You can also display the cover image -->
+                    <img src="<%= existingHtml.bookInfo.cover?.medium %>" alt="Book Cover">
+    
+                    <!-- Add additional information as needed -->
+    
+                    <!-- Display links to external sources -->
+                    <% if (existingHtml.bookInfo.details.links && existingHtml.bookInfo.details.links.length > 0) { %>
+                        <ul>
+                            <% existingHtml.bookInfo.details.links.forEach(link => { %>
+                                <li><a href="<%= link.url %>" target="_blank"><%= link.title %></a></li>
+                            <% }) %>
+                        </ul>
+                    <% } %>
+                </div>
+            <% } else if(existingHtml.error) { %>
+                <p>Error: <%= existingHtml.error %></p>
+            <% } else { %>
+                <p>No information available for the provided ISBN.</p>
+            <% } %>
+        <% } else { %>
+            <p>Loading...</p>
+        <% } %>
+    </div>
+</body>
+
+</html>

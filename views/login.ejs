@@ -7,7 +7,10 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-image: url('https://basecamplive.com/wp-content/uploads/2023/02/books.jpeg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,10 +19,45 @@
             padding: 0;
         }
 
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar span {
+            margin-left: 50px;
+        }
+
+        .navbar-link {
+            margin-right: 10px;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar-link:hover {
+            background-color: #333;
+        }
+
         .form-container {
             width: 300px;
             padding: 20px;
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.8); /* Added background color with opacity */
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -42,12 +80,12 @@
         }
 
         .form-group input {
-            width: calc(100% - 20px); /* Adjusted width to include margin */
+            width: calc(100% - 20px);
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            margin-right: 10px; /* Added right margin */
+            margin-right: 10px;
         }
 
         .submit-btn {
@@ -80,14 +118,26 @@
         }
     </style>
 </head>
+
 <body>
+    <div class="navbar">
+        <span></span>
+        <div class="navbar-links">
+            <a href="/home" class="navbar-link logout-link">Home</a>
+            <a href="api/books_by_title" class="navbar-link logout-link">Books by title</a>
+            <a href="api/books_by_title" class="navbar-link logout-link">Books by ISBN</a>
+            <a href="api/books_by_title" class="navbar-link logout-link">QUIZ(bonus)</a>
+            <a href="/signup" class="navbar-link logout-link">SignUp</a>
+        </div>
+    </div>
 
     <div class="form-container">
         <h2>Login</h2>
         <form action="/login" method="post">
             <div class="form-group">
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="off">
+                <input type="text" id="username" name="username" placeholder="Enter your username" required
+                    autocomplete="off">
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
@@ -101,4 +151,5 @@
     </div>
 
 </body>
+
 </html>

@@ -34,8 +34,8 @@ app.get("/api/books_by_title", (req, res) => {
     res.render("../api/books_by_title", { existingHtml: existingHtml });
 });
 
-app.get("/api/urban-dictionary", (req, res) => {
-    res.render("../api/urban", { meanings: null });
+app.get("/api/books_by_isbn", (req, res) => {
+    res.render("../api/books_by_isbn", { existingHtml: existingHtml });
 });
 
 app.get("/signup", (req, res) => {
@@ -253,6 +253,32 @@ app.post("/search", async (req, res) => {
         res.status(500).send("Error fetching book data");
     }
 });
+app.post("/search-isbn", async (req, res) => {
+    const isbn = req.body.isbn;
+    const apiUrl = `https://openlibrary.org/api/volumes/brief/isbn/${isbn}.json`;
+
+    try {
+        const response = await axios.get(apiUrl);
+        const bookData = response.data.docs;
+
+        const additionalContent = { isbn: isbn, bookInfo: bookData[0] }; // Use bookData[0] to get the first book info
+        const userName = req.session.userName;
+
+        await collection.UserActionModel.create({
+            username: userName,
+            action: `Search book by ISBN ${isbn}`,
+            date: new Date(),
+        });
+
+        res.render('../api/books_by_isbn', { existingHtml: additionalContent });
+
+    } catch (error) {
+        console.error(error);
+        res.render('../api/books_by_isbn', { existingHtml: { error: 'No information available for the provided ISBN.' } });
+    }
+});
+
+
 
 
 app.listen(port, () => {
