@@ -62,6 +62,8 @@ const userActionSchema = new mongoose.Schema({
 
 const UserActionModel = mongoose.model('users_action', userActionSchema);
 
+
+
 module.exports = {
   UserModel,
   UserActionModel

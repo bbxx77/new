@@ -7,10 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Information</title>
     <style>
-        /* Add your CSS styles here */
-        body {
+         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f8f8f8;
+            background-image: url('https://i.pinimg.com/736x/fc/df/12/fcdf12ab3c0e48d7908ffc9a78fe5c93.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
             margin: 0;
             padding: 0;
             display: flex;
@@ -18,7 +20,6 @@
             align-items: center;
             min-height: 100vh;
         }
-
         .navbar {
             background-color: #333;
             color: white;
@@ -53,7 +54,7 @@
 
         .container {
             text-align: center;
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 20px;
@@ -65,7 +66,7 @@
             margin-bottom: 20px;
         }
 
-        .books-container {
+        .authors-container {
             margin-top: 20px;
         }
 
@@ -89,7 +90,12 @@
         }
 
         footer {
-            margin-top: 20px;
+            margin-top: auto;
+            padding: 15px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            width: 100%;
         }
     </style>
 </head>
@@ -101,43 +107,30 @@
             <a href="/home" class="navbar-link logout-link">Home</a>
             <a href="/login" class="navbar-link logout-link">Logout</a>
             <a href="/history" class="navbar-link logout-link">View Search History</a>
+            <a href="books_by_title" class="navbar-link logout-link">Books by title</a>
+
         </div>
     </div>
-
     <div class="container">
-        <h1>Book ISBN</h1>
-        <form action="/search-isbn" method="post">
-            <label for="isbn">Enter ISBN:</label>
-            <input type="text" id="isbn" name="isbn" required>
+        <h1>Search about Author</h1>
+        <form action="/api/books_by_author" method="post">
+            <label for="author">Enter Author Name:</label>
+            <input type="text" id="author" name="author" required>
             <button type="submit">Search</button>
         </form>
-                <% if(existingHtml) { %>
-    <div class="books-container">
-        <% if(existingHtml.bookInfo) { %>
-            <% const book = existingHtml.bookInfo; %>
-            <h2><%= book.details.title %></h2>
-            <% if (book.details.authors && book.details.authors.length > 0) { %>
-                <p>Author: <%= book.details.authors[0].name %></p>
-            <% } %>
-            <% if (book.details.publish_date) { %>
-                <p>Publish Date: <%= book.details.publish_date %></p>
-            <% } %>
-            <!-- Add more details as needed -->
-
-            <!-- Display links to external sources -->
-            <% if (book.details.links && book.details.links.length > 0) { %>
-                <ul>
-                    <% book.details.links.forEach(link => { %>
-                        <li><a href="<%= link.url %>" target="_blank"><%= link.title %></a></li>
-                    <% }) %>
-                </ul>
-            <% } %>
-        <% } else if(existingHtml.error) { %>
-            <p>Error: <%= existingHtml.error %></p>
-        <% } else { %>
-            <p>No information available for the provided ISBN.</p>
+    
+        <% if(authorsData && authorsData.length > 0) { %>
+            <div class="authors-container">
+                <h2>Author Information for '<%= authorsData[0].name %>'</h2>
+                <p>Birth Date: <%= authorsData[0].birth_date || 'Not available' %></p>
+                <p>Top Work: <%= authorsData[0].top_work || 'Not available' %></p>
+                <p>Work Count: <%= authorsData[0].work_count || 'Not available' %></p>
+                <!-- Add more details as needed -->
+            </div>
         <% } %>
     </div>
-<% } else { %>
-    <p>Loading...</p>
-<% } %>
+    <footer>
+        <p>Created by Balzhan, SE-2206</p>
+    </footer>
+</body>
+</html>

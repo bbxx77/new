@@ -7,8 +7,9 @@ const session = require("express-session");
 const app = express();
 const port = 3000;
 const bcrypt = require('bcrypt');
+const router = express.Router();
 
-
+app.use('/api', router);
 app.use(session({ secret: "your-secret-key", resave: true, saveUninitialized: true }));
 app.use(express.static(__dirname + '../public'));
 app.set('view engine', 'ejs');
@@ -21,7 +22,6 @@ app.use('/api', express.static(path.join(__dirname, 'api')));
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static('public/uploads'));
-
 let existingHtml = "";
 
 app.get("/", (req, res) => {
@@ -34,8 +34,8 @@ app.get("/api/books_by_title", (req, res) => {
     res.render("../api/books_by_title", { existingHtml: existingHtml });
 });
 
-app.get("/api/books_by_isbn", (req, res) => {
-    res.render("../api/books_by_isbn", { existingHtml: existingHtml });
+app.get("/api/books_by_author", (req, res) => {
+    res.render("../api/books_by_author", { authorsData: existingHtml });
 });
 
 app.get("/signup", (req, res) => {
@@ -50,9 +50,16 @@ app.get("/home", (req, res) => {
     res.render("../views/home");
 });
 
-app.get("/api/movies", (req, res) => {
-    res.render("../api/movies", { movies: null });
+
+app.get("/rest-api", (req, res) => {
+    res.render("../rest-api/admin-rest-api");
 });
+
+app.get('/search-author', (req, res) => {
+    res.render('../api/search_author');
+});
+
+
 app.post("/signup", async (req, res) => {
     const data = {
         name: req.body.username,
@@ -103,34 +110,6 @@ app.post("/login", async (req, res) => {
         res.status(500).send('An error occurred during login.');
     }
 });
-app.get("/api/urban-dictionary", async (req, res) => {
-    try {
-        const meanings = await fetchMeanings();
-        res.render("../api/urban", { meanings });
-    } catch (error) {
-        console.error("Error fetching Urban Dictionary data:", error);
-        res.render("../api/urban", { meanings: [] });
-    }
-});
-
-app.post("/api/search-word", async (req, res) => {
-    const word = req.body.word;
-
-    try {
-        const meanings = await fetchMeanings(word);
-        const userName = req.session.userName;
-        await collection.UserActionModel.create({
-            username: userName,
-            action: `Search word on Dictionary: ${word}`,
-            date: new Date(),
-        });
-
-        res.render("../api/urban", { meanings });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Error fetching Urban Dictionary data" });
-    }
-});
 
 app.get("/history", async (req, res) => {
     try {
@@ -140,30 +119,6 @@ app.get("/history", async (req, res) => {
     } catch (error) {
         console.error('Error fetching user history:', error);
         res.status(500).send('An error occurred while fetching user history.');
-    }
-});
-
-
-app.get('/download-history', async (req, res) => {
-    try {
-        const histories = await collection.UserActionModel.find(); 
-        const pdfDoc = new pdfkit();
-        const stream = pdfDoc.pipe(blobStream());
-
-        pdfDoc.text('Search History', { align: 'center', fontSize: 20, margin: 10 });
-
-        histories.forEach(history => {
-            pdfDoc.text(`Date: ${history.date}, Action: ${history.action}`, { margin: 5 });
-        });
-
-        pdfDoc.end();
-        res.setHeader('Content-disposition', 'attachment; filename=search_history.pdf');
-        res.setHeader('Content-type', 'application/pdf');
-
-        stream.pipe(res);
-    } catch (error) {
-        console.error('Error fetching search history:', error);
-        res.status(500).send('An error occurred while fetching search history.');
     }
 });
 
@@ -268,47 +223,23 @@ app.post("/search", async (req, res) => {
 });
 
 
-
-
-app.post("/search", async (req, res) => {
-    const title = req.body.title;
-    const apiUrl = `http://openlibrary.org/search.json?title=${title}`;
+app.post("/api/books_by_author", async (req, res) => {
+    // Handle POST request for author search
+    const authorQuery = req.body.author;
+    const apiUrl = `https://openlibrary.org/search/authors.json?q=${encodeURIComponent(authorQuery)}`;
 
     try {
         const response = await axios.get(apiUrl);
-        const booksData = response.data.docs;
+        const authorsData = response.data.docs;
 
-        // Extract necessary information
-        const bookInfo = booksData[0];
-        const additionalContent = {
-            title: bookInfo.title,
-            author: bookInfo.author_name ? bookInfo.author_name.join(', ') : '',
-            firstPublishYear: bookInfo.first_publish_year || '',
-            publishYears: bookInfo.publish_year || [],
-            ratings_average: getNestedValue(bookInfo, 'details', 'ratings_average') || 0,
-        };
-
-        const userName = req.session.userName;
-
-        // Save the result in user action
-        const userAction = await collection.UserActionModel.create({
-            username: userName,
-            action: `Search books for ${title}`,
-            date: new Date(),
-            result: additionalContent,
-        });
-
-        res.render('../api/books_by_title', { existingHtml: additionalContent });
-
+        // Render your EJS template with author information
+        res.render('../api/books_by_author', { authorsData });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error fetching book data");
+        // Render an error page or handle the error in a way that fits your application
+        res.render('error_page', { error: "Error fetching author data" });
     }
 });
-
-
-
-
 
 
 

@@ -72,6 +72,14 @@
         .result-list {
             margin-left: 20px;
         }
+        footer {
+            margin-top: auto;
+            padding: 15px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -80,6 +88,8 @@
         <div class="navbar-links">
             <a href="/home" class="navbar-link home-link">Home</a>
             <a href="/login" class="navbar-link logout-link">Logout</a>
+            <a href="api/books_by_title" class="navbar-link logout-link">Books by title</a>
+            <a href="api/books_by_author" class="navbar-link logout-link">Books by author</a>
         </div>
     </div>
 
@@ -105,9 +115,9 @@
             </li>
         <% }); %>
     </ul>
-    <footer style="margin-top: 20px;">
-        <p style="margin: 0;">Created by Balzhan, SE-2206</p>
-    </footer>
+    <footer>
+        <p>Created by Balzhan, SE-2206</p>
+    </footer>>
     
 </body>
 </html>
