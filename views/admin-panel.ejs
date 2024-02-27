@@ -141,41 +141,49 @@
         <span>Welcome Admin!</span>
         <div class="navbar-links">
             <a href="/logout" class="navbar-link">Logout</a>
-            <a href="./rest-api" class="navbar-link">Book Management</a>
         </div>
     </div>
 
-    <h1>Admin Panel - User Management</h1>
+    <h1>Admin Panel - Book Management</h1>
 
-    <!-- Add User Form -->
-    <form action="/admin-panel/add-user" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+    <!-- Add Book Form -->
+    <form action="/admin-panel/add-book" method="post">
+        <label for="images">Images (comma-separated):</label>
+        <input type="text" id="images" name="images" required>
+        <label for="titles.language1">Title (Language 1):</label>
+        <input type="text" id="titles.language1" name="titles.language1" required>
+        <label for="titles.language2">Title (Language 2):</label>
+        <input type="text" id="titles.language2" name="titles.language2" required>
+        <label for="descriptions.language1">Description (Language 1):</label>
+        <input type="text" id="descriptions.language1" name="descriptions.language1" required>
+        <label for="descriptions.language2">Description (Language 2):</label>
+        <input type="text" id="descriptions.language2" name="descriptions.language2" required>
         <div class="edit-delete-buttons">
-            <button class="add-user-button" type="submit">Add User</button>
+            <button class="add-user-button" type="submit">Add Book</button>
         </div>
     </form>
     <table>
         <thead>
             <tr>
-                <th>User ID</th>
-                <th>Username</th>
+                <th>Book ID</th>
+                <th>Title (Language 1)</th>
+                <th>Description (Language 1)</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            <% users.forEach(user => { %>
+            <% books.forEach(book => { %>
                 <tr>
-                    <td><%= user._id %></td>
-                    <td><%= user.name %></td>
+                    <td><%= book._id %></td>
+                    <td><%= book.titles.language1 %></td>
+                    <td><%= book.descriptions.language1 %></td>
                     <td>
                         <div class="edit-delete-buttons">
-                            <a href="/admin-panel/edit-user/<%= user._id %>">
+                            <a href="/admin-panel/edit-book/<%= book._id %>">
                                 <button>Edit</button>
                             </a>
-                            <form action="/admin-panel/delete-user/<%= user._id %>" method="post" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                            <form action="/admin-panel/delete-book/<%= book._id %>" method="post"
+                                onsubmit="return confirm('Are you sure you want to delete this book?');">
                                 <button type="submit">Delete</button>
                             </form>
                         </div>
@@ -189,4 +197,5 @@
         <p style="margin: 0;">Created by Balzhan, SE-2206</p>
     </footer>
 </body>
+
 </html>

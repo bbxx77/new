@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Book</title>
+</head>
+<body>
+<h1>Update Book Details</h1>
+<form action="/update/<%= book._id %>" method="POST">
+    <label for="title">Title:</label><br>
+    <input type="text" id="title" name="title" value="<%= book.title %>" placeholder="Title" required><br>
+
+    <label for="author">Author:</label><br>
+    <input type="text" id="author" name="author" value="<%= book.author %>" placeholder="Author" required><br>
+
+    <label for="genre">Genre:</label><br>
+    <input type="text" id="genre" name="genre" value="<%= book.genre %>" placeholder="Genre"><br>
+
+    <label for="publicationYear">Publication Year:</label><br>
+    <input type="number" id="publicationYear" name="publicationYear" value="<%= book.publicationYear %>" placeholder="Publication Year"><br>
+
+    <label for="quantityAvailable">Quantity Available:</label><br>
+    <input type="number" id="quantityAvailable" name="quantityAvailable" value="<%= book.quantityAvailable %>" placeholder="Quantity Available"><br>
+
+    <label for="price">Price:</label><br>
+    <input type="number" id="price" name="price" value="<%= book.price %>" placeholder="Price"><br>
+
+    <button type="submit">Update Book</button>
+</form>
+
+<a href="/">Cancel</a>
+</body>
+</html>

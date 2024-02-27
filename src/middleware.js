@@ -1,5 +1,7 @@
 
 function isAuthenticated(req, res, next) {
+    console.log(req.session)
+    console.log(req.session.username)
     if (req.session && req.session.userName) {
         return next(); // Пользователь авторизован, продолжаем выполнение запроса
     } else {
@@ -7,8 +9,7 @@ function isAuthenticated(req, res, next) {
     }
 }
 
-// Проверка роли пользователя
-function checkRole(role) {
+function isAdmin(role) {
     return (req, res, next) => {
         // Предполагается, что информация о роли пользователя хранится в сессии или базе данных
         const userRole = req.session.role; // Здесь используется session, но вы можете использовать вашу собственную логику
@@ -23,5 +24,5 @@ function checkRole(role) {
 
 module.exports = {
     isAuthenticated,
-    checkRole,
+    isAdmin
 };

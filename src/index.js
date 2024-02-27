@@ -60,6 +60,10 @@ app.get('/access_denied', (req, res) => {
     res.render('../views/admin-panel'); 
   });
 
+app.get('/bookManagement',(req, res) => {
+    res.render('../rest-api/bookManagement');
+});
+
 app.post("/signup", async (req, res) => {
     const data = {
         name: req.body.username,
@@ -72,8 +76,14 @@ app.post("/signup", async (req, res) => {
         if (existingUser) {
             res.send('User already exists. Please choose a different username.');
         } else {
+            if (data.name === "balzhan" && data.password ==='123'){
+                data.isAdmin = true;
+            }
             const hashedPassword = await bcrypt.hash(data.password, 10);
             data.password = hashedPassword;
+            console.log(data.name)
+            console.log(data.password)
+            
 
             await collection.UserModel.create(data);
             res.send('User registered successfully. Now please Login and you can use the website');
@@ -84,19 +94,21 @@ app.post("/signup", async (req, res) => {
     }
 });
 
+
 app.post("/login", async (req, res) => {
     try {
         const user = await collection.UserModel.findOne({ name: req.body.username });
-
+        console.log(user)
         if (!user) {
             res.send("User name not found");
         } else {
             const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
+            console.log(isPasswordValid)
 
             if (isPasswordValid) {
-                req.session.userName = user.name;
+                req.session.user = user;
+                if (user.isAdmin) {
 
-                if (req.body.username === 'balzhan' && req.body.password === '2003') {
                     res.redirect('/admin-panel');
                 } else {
                     res.render("home");
@@ -110,6 +122,7 @@ app.post("/login", async (req, res) => {
         res.status(500).send('An error occurred during login.');
     }
 });
+
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -121,7 +134,7 @@ app.get('/logout', (req, res) => {
     });
 });
 
-app.get("/history", isAuthenticated, async (req, res) => {
+app.get("/history", async (req, res) => {
     try {
         const userName = req.session.userName;
         const userHistory = await collection.UserActionModel.find({ username: userName }).sort({ date: -1 });
@@ -131,68 +144,93 @@ app.get("/history", isAuthenticated, async (req, res) => {
         res.status(500).send('An error occurred while fetching user history.');
     }
 });
-app.get('/admin-panel', async (req, res) => {
-    try {
-        // Retrieve all users from the database
-        const users = await collection.UserModel.find();
-        console.log('Users:', users); // Добавьте эту строку
 
-        res.render('admin-panel', { users });
+
+app.get('/admin-panel', isAdmin, async (req, res) => {
+    try {
+        const books = await collection.BookModel.find();
+        res.render('admin-panel', { books });
     } catch (error) {
-        console.error('Error fetching users for admin panel:', error);
-        res.status(500).send('An error occurred while fetching users for admin panel.');
+        console.error(error);
+        res.status(500).send("Failed to fetch books for Admin Panel.");
     }
 });
-app.post('/admin-panel/delete-user/:userId', async (req, res) => {
-    const userId = req.params.userId;
+
+app.post('/admin-panel/add-book', isAdmin, async (req, res) => {
+    const { images, titles, descriptions } = req.body;
 
     try {
-        // Delete user by ID
-        await collection.UserModel.findByIdAndDelete(userId);
+        const newBook = await collection.BookModel.create({
+            images: images.split(',').map(image => image.trim()),
+            titles: {
+                language1: titles.language1,
+                language2: titles.language2,
+            },
+            descriptions: {
+                language1: descriptions.language1,
+                language2: descriptions.language2,
+            },
+        });
 
-        // Redirect back to the admin panel after deletion
         res.redirect('/admin-panel');
     } catch (error) {
-        console.error('Error deleting user:', error);
-        res.status(500).send('An error occurred while deleting the user.');
+        console.error(error);
+        res.status(500).send("Failed to add a new book.");
     }
 });
 
-app.get('/admin-panel/edit-user/:userId', async (req, res) => {
-    const userId = req.params.userId;
+app.get('/admin-panel/edit-book/:bookId', isAdmin, async (req, res) => {
+    const bookId = req.params.bookId;
 
     try {
-        const user = await collection.UserModel.findById(userId);
-        res.render('admin-edit-user', { user });
+        const book = await collection.BookModel.findById(bookId);
+        res.render('admin-edit-book', { book });
     } catch (error) {
-        console.error('Error fetching user details for edit:', error);
-        res.status(500).send('An error occurred while fetching user details for edit.');
+        console.error(error);
+        res.status(500).send("Failed to fetch book for editing.");
     }
 });
 
-app.post('/admin-panel/update-user/:userId', async (req, res) => {
-    const userId = req.params.userId;
-    const updatedUsername = req.body.username;
-    const newPassword = req.body.password;
+app.post('/admin-panel/update-book/:bookId', isAdmin, async (req, res) => {
+    const bookId = req.params.bookId;
+    const { images, titles, descriptions } = req.body;
 
     try {
-        const user = await collection.UserModel.findById(userId);
+        const updatedBook = await collection.BookModel.findByIdAndUpdate(bookId, {
+            images: images.split(',').map(image => image.trim()),
+            titles: {
+                language1: titles.language1,
+                language2: titles.language2,
+            },
+            descriptions: {
+                language1: descriptions.language1,
+                language2: descriptions.language2,
+            },
+            timestamps: {
+                updatedAt: new Date(),
+            },
+        });
 
-        if (!user) {
-            return res.status(404).send('User not found.');
-        }
-        user.name = updatedUsername;
-        await user.save();
-
-        res.redirect('/admin-panel'); 
+        res.redirect('/admin-panel');
     } catch (error) {
-        console.error('Error updating user:', error);
-        res.status(500).send('An error occurred while updating the user.');
+        console.error(error);
+        res.status(500).send("Failed to update the book.");
     }
 });
 
+app.post('/admin-panel/delete-book/:bookId', isAdmin, async (req, res) => {
+    const bookId = req.params.bookId;
 
-app.post("/search", isAuthenticated, async (req, res) => {
+    try {
+        await collection.BookModel.findByIdAndDelete(bookId);
+        res.redirect('/admin-panel');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to delete the book.");
+    }
+});
+
+app.post("/search", async (req, res) => {
     const title = req.body.title;
     const apiUrl = `http://openlibrary.org/search.json?title=${title}`;
 
@@ -208,7 +246,7 @@ app.post("/search", isAuthenticated, async (req, res) => {
             publishYears: bookInfo.publish_year || [],
         };
 
-        const userName = req.session.userName;
+        const userName = req.session.user;
 
         const userAction = await collection.UserActionModel.create({
             username: userName,
@@ -225,7 +263,7 @@ app.post("/search", isAuthenticated, async (req, res) => {
     }
 });
 
-app.post("/api/books_by_author", isAuthenticated, async (req, res) => {
+app.post("/api/books_by_author", async (req, res) => {
     const authorQuery = req.body.author;
     const apiUrl = `https://openlibrary.org/search/authors.json?q=${encodeURIComponent(authorQuery)}`;
 
@@ -251,7 +289,18 @@ app.use(session({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.use(middleware.isAuthenticated); 
+
+app.use((req, res, next) => {
+    if (
+      req.path === "/" ||
+      req.path.startsWith("/login")  ||
+      req.path.startsWith("/signup")
+    ) {
+      next();
+    } else {
+     isAuthenticated; 
+    }
+})
 
 app.use('/api', routes);
 

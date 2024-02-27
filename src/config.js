@@ -31,10 +31,10 @@ const loginSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
-  role: {
-    type: String,
-    enum: ['admin', 'regular'], 
-    default: 'regular', 
+  isAdmin: {
+    type: Boolean,
+    default: false, 
+    required: true
   },
 });
 
@@ -63,9 +63,36 @@ const userActionSchema = new mongoose.Schema({
 
 const UserActionModel = mongoose.model('users_action', userActionSchema);
 
+const bookSchema = new mongoose.Schema({
+  images: [String],
+  titles: {
+      language1: String,
+      language2: String,
+  },
+  descriptions: {
+      language1: String,
+      language2: String,
+  },
+  timestamps: {
+      createdAt: {
+          type: Date,
+          default: Date.now,
+      },
+      updatedAt: {
+          type: Date,
+          default: null,
+      },
+      deletedAt: {
+          type: Date,
+          default: null,
+      },
+  },
+});
 
+const BookModel = mongoose.model('books', bookSchema);
 
 module.exports = {
   UserModel,
-  UserActionModel
+  UserActionModel,
+  BookModel
 };
