@@ -19,10 +19,6 @@ const loginSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  isAdmin: {
-    type: Boolean,
-    default: false
-  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -34,7 +30,12 @@ const loginSchema = new mongoose.Schema({
   deletedAt: {
     type: Date,
     default: null
-  }
+  },
+  role: {
+    type: String,
+    enum: ['admin', 'regular'], 
+    default: 'regular', 
+  },
 });
 
 const UserModel = mongoose.model('users', loginSchema);
