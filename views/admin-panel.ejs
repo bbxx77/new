@@ -145,17 +145,24 @@
     </div>
 
     <h1>Admin Panel - Book Management</h1>
-    <form action="/admin-panel/add-book" method="post">
+    <form action="/admin-panel/add-book" method="post" enctype="multipart/form-data">
         <label for="images">Images (comma-separated):</label>
-        <input type="text" id="images" name="images" required>
+        <label for="addImage1">1</label>
+        <input type="file" id="addImage1" name="images[]" accept="image/*" required>
+        <br>
+        <label for="addImage2">2:</label>
+        <input type="file" id="addImage2" name="images[]" accept="image/*" required>
+        <br>
+        <label for="addImage3">3:</label>
+        <input type="file" id="addImage3" name="images[]" accept="image/*" required>
         <label for="titles.language1">Title (Language 1):</label>
-        <input type="text" id="titles.language1" name="titles.language1" required>
+        <input type="text" id="titles.language1" name="title1" required>
         <label for="titles.language2">Title (Language 2):</label>
-        <input type="text" id="titles.language2" name="titles.language2" required>
+        <input type="text" id="titles.language2" name="title2" required>
         <label for="descriptions.language1">Description (Language 1):</label>
-        <input type="text" id="descriptions.language1" name="descriptions.language1" required>
+        <input type="text" id="descriptions.language1" name="description1" required>
         <label for="descriptions.language2">Description (Language 2):</label>
-        <input type="text" id="descriptions.language2" name="descriptions.language2" required>
+        <input type="text" id="descriptions.language2" name="description2" required>
         <div class="edit-delete-buttons">
             <button class="add-user-button" type="submit">Add Book</button>
         </div>

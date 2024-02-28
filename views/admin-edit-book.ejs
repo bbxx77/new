@@ -7,10 +7,18 @@
 
     <h1>Edit User</h1>
 
-    <form action="/admin-panel/update-user/<%= user._id %>" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" value="<%= user.name %>" required>
-        <button type="submit">Update User</button>
+    <form action="/admin-panel/update-book/<%= book._id %>" method="post">
+        <label for="titles.language1">Title (Language 1):</label>
+        <input type="text" id="titles.language1" name="title1" required>
+        <label for="titles.language2">Title (Language 2):</label>
+        <input type="text" id="titles.language2" name="title2" required>
+        <label for="descriptions.language1">Description (Language 1):</label>
+        <input type="text" id="descriptions.language1" name="description1" required>
+        <label for="descriptions.language2">Description (Language 2):</label>
+        <input type="text" id="descriptions.language2" name="description2" required>
+        <div class="edit-delete-buttons">
+            <button class="add-user-button" type="submit">Update Book</button>
+        </div>
     </form>
 </body>
 </html>

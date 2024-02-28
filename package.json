@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nodeman src/index.js"
+    "test": "nodeman src/index.js",
+    "start":"node src/index.js"
   },
   "author": "",
   "license": "ISC",

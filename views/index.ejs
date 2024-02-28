@@ -258,9 +258,6 @@ select[name="language"]:focus {
     </div>
     <h1>The winner of the month</h1>
     <div class="container">
-        <img src="./360_F_524300228_egMskw0zvvdwNUFPeJLlplclKzFamXBk.jpg" alt="Course Image">
-
-
 
         <div class="row">
             <% books.forEach(book => { %>
@@ -289,8 +286,8 @@ select[name="language"]:focus {
                             </a>
                         </div>
                         <div class="card-body">
-                                <h5 class="card-title"><%= book.titles.language1 %></h5>
-                                <p class="card-text"><%= book.descriptions.language2 %></p>
+                                <h5 class="card-title"><%= book.names[0].name %></h5>
+                                <p class="card-text"><%= book.descriptions[0].description %></p>
                         </div>
                     </div>
                 </div>

@@ -5,12 +5,13 @@ const axios = require("axios");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const app = express();
-const port = 3000;
+const port = 5000;
 const bcrypt = require('bcrypt');
 const router = express.Router();;
 const authMiddleware = require('./authMiddleware');
 const { isAdmin, isAuthenticated } = require('./authMiddleware');
 
+const multer = require('multer');
 
 app.use('/api', router);
 app.use(session({ secret: "your-secret-key", resave: true, saveUninitialized: true }));
@@ -20,7 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/uploads', express.static('public/uploads'));
+app.use('../uploads', express.static('uploads'));
 
 
 
@@ -45,10 +46,6 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 
-app.get("/home", (req, res) => {
-    res.render("../views/home");
-});
-
 app.get('/search-author', (req, res) => {
     res.render('../api/search_author');
 });
@@ -56,6 +53,17 @@ app.get('/search-author', (req, res) => {
 app.get('/admin-page', isAdmin, (req, res) => {
     res.render('views/admin-panel');
 });
+
+app.get("/home",async (req, res) => {
+    try {
+        const books = await collection.BookModel.find();
+        console.log(books)
+        res.render('home', {books:books});
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
+
 app.get('/access_denied', (req, res) => {
     res.render('../views/admin-panel'); 
   });
@@ -111,7 +119,7 @@ app.post("/login", async (req, res) => {
 
                     res.redirect('/admin-panel');
                 } else {
-                    res.render("home");
+                    res.redirect("/home");
                 }
             } else {
                 res.send("Incorrect password");
@@ -156,21 +164,38 @@ app.get('/admin-panel', isAdmin, async (req, res) => {
     }
 });
 
-app.post('/admin-panel/add-book', isAdmin, async (req, res) => {
-    const { images, titles, descriptions } = req.body;
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, '../uploads/') 
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+});
+const upload = multer({ storage: storage });
 
+app.post('/admin-panel/add-book', isAdmin, upload.array('images[]'), async (req, res) => {
+    const { description1,title2,description2, title1 } = req.body;
+    const imageUrls = req.files.map(file => {
+        const correctedPath = file.path.replace(/\\/g, '/');
+        return correctedPath;
+    });
+
+    console.log(description1,title2,description2, title1,)
+    console.log(imageUrls)
     try {
         const newBook = await collection.BookModel.create({
-            images: images.split(',').map(image => image.trim()),
+            images: imageUrls,
             titles: {
-                language1: titles.language1,
-                language2: titles.language2,
+                language1: title1,
+                language2: title2,
             },
             descriptions: {
-                language1: descriptions.language1,
-                language2: descriptions.language2,
+                language1: description1,
+                language2: description2,
             },
         });
+        console.log(newBook)
 
         res.redirect('/admin-panel');
     } catch (error) {
@@ -193,28 +218,34 @@ app.get('/admin-panel/edit-book/:bookId', isAdmin, async (req, res) => {
 
 app.post('/admin-panel/update-book/:bookId', isAdmin, async (req, res) => {
     const bookId = req.params.bookId;
-    const { images, titles, descriptions } = req.body;
-
+    console.log(req.body)
+    const {description1,title2,description2, title1 } = req.body;
+    console.log(description1,title2,description2, title1)
+    console.log(bookId)
     try {
-        const updatedBook = await collection.BookModel.findByIdAndUpdate(bookId, {
-            images: images.split(',').map(image => image.trim()),
-            titles: {
-                language1: titles.language1,
-                language2: titles.language2,
-            },
-            descriptions: {
-                language1: descriptions.language1,
-                language2: descriptions.language2,
-            },
-            timestamps: {
-                updatedAt: new Date(),
-            },
-        });
+        const book = await collection.BookModel.findById(bookId);
+        if (!book) {
+            return res.status(404).send('Course not found');
+        }
+        if (description1) {
+            book.descriptions.language1 = description1;
+        }
+        if (title2) {
+            book.titles.language2 = title2
+        }
+        if (description2) {
+            book.descriptions.languageduration1  = description2;
+        }
+        if (title1) {
+            book.titles.language1 = title1;
+        }
+        const updatedBook = await book.save();
 
-        res.redirect('/admin-panel');
+        const books = await collection.BookModel.find();
+        res.redirect('/admin-panel')
     } catch (error) {
         console.error(error);
-        res.status(500).send("Failed to update the book.");
+        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -288,7 +319,7 @@ app.use(session({
 }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
 app.use((req, res, next) => {
     if (
